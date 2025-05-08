@@ -55,8 +55,16 @@ if [ "$USAGE" -ge 90 ]; then
     fi
 
     # Extend the logical volume and grow the filesystem
-    echo "Extending by ${EXTEND_BY}G..."
-    lvextend -L +"${EXTEND_BY}G" "$LV_PATH" && resize2fs "$LV_PATH"
+     echo "Extending $LV_PATH by ${EXTEND_BY}G..."
+    lvextend -L +"${EXTEND_BY}G" "$LV_PATH"
+
+    # Run e2fsck to check the filesystem before resizing
+    echo "Running e2fsck on $LV_PATH..."
+    e2fsck -f "$LV_PATH"
+
+    # Resize the filesystem
+    echo "Resizing the filesystem on $LV_PATH..."
+    resize2fs "$LV_PATH"
 
     # Check if the extension and resizing were successful
     if [ $? -eq 0 ]; then
